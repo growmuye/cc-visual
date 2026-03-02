@@ -651,44 +651,45 @@ export default {
 
 <style>
 /* ==================== 全局变量 ==================== */
+/* Quite Light 主题配色 - 柔和、低对比度、适合长时间阅读 */
 :root {
-  /* 主色调 - 低调高区分度 */
+  /* 主色调 - 柔和蓝色 */
   --primary: #3b82f6;
-  --primary-light: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-bg: rgba(59, 130, 246, 0.1);
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --primary-bg: rgba(59, 130, 246, 0.08);
 
-  /* 状态色 */
+  /* 状态色 - 柔和色调 */
   --success: #16a34a;
-  --success-bg: rgba(22, 163, 74, 0.1);
-  --warning: #ca8a04;
-  --warning-bg: rgba(202, 138, 4, 0.1);
-  --info: #3b82f6;
-  --info-bg: rgba(59, 130, 246, 0.1);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.1);
+  --success-bg: rgba(22, 163, 74, 0.08);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.08);
+  --info: #2563eb;
+  --info-bg: rgba(37, 99, 235, 0.08);
+  --danger: #991b1b;
+  --danger-bg: rgba(153, 27, 27, 0.08);
 
-  /* 背景色 - 白色主题 */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  /* 背景色 - Quite Light 风格的浅灰白色 */
+  --bg-primary: #f2f2f2;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e8e8e8;
   --bg-card: #ffffff;
-  --bg-hover: #f1f5f9;
+  --bg-hover: #e0e0e0;
 
-  /* 边框 */
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
+  /* 边框 - 柔和灰色 */
+  --border-light: #d4d4d4;
+  --border-medium: #c4c4c4;
 
-  /* 文字 */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  /* 文字 - 深灰而非纯黑，降低对比度 */
+  --text-primary: #333333;
+  --text-secondary: #555555;
+  --text-muted: #888888;
 
-  /* 阴影 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+  /* 阴影 - 更柔和 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.1);
 
   /* 圆角 */
   --radius-sm: 6px;
@@ -696,17 +697,17 @@ export default {
   --radius-lg: 14px;
   --radius-xl: 20px;
 
-  /* 成员颜色 - 深色高对比度，适合白色背景 */
-  --member-red: #dc2626;
-  --member-orange: #ea580c;
-  --member-amber: #ca8a04;
-  --member-green: #16a34a;
-  --member-teal: #0d9488;
-  --member-cyan: #0891b2;
-  --member-blue: #2563eb;
-  --member-indigo: #4f46e5;
-  --member-purple: #7c3aed;
-  --member-pink: #db2777;
+  /* 成员颜色 - Quite Light 风格的柔和色调 */
+  --member-red: #b91c1c;
+  --member-orange: #c2410c;
+  --member-amber: #a16207;
+  --member-green: #15803d;
+  --member-teal: #0f766e;
+  --member-cyan: #0e7490;
+  --member-blue: #1d4ed8;
+  --member-indigo: #4338ca;
+  --member-purple: #6d28d9;
+  --member-pink: #be185d;
 }
 
 /* ==================== 基础样式 ==================== */
