@@ -156,9 +156,19 @@
                 <h3>协作消息</h3>
                 <span class="count-badge" :class="{ 'has-items': totalInboxMessages > 0 }">{{ totalInboxMessages }}</span>
               </div>
-              <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
-                <span class="chevron"></span>
-              </button>
+              <div class="section-actions-group">
+                <button
+                  v-if="totalInboxMessages > 0"
+                  class="btn-play-graph"
+                  @click.stop="openGraph"
+                  title="播放协作图">
+                  <span class="btn-icon">▶️</span>
+                  <span>协作图</span>
+                </button>
+                <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
+                  <span class="chevron"></span>
+                </button>
+              </div>
             </div>
             <transition name="expand">
               <div v-show="!collapsedSections.inboxes" class="chat-window" ref="chatWindow">
@@ -382,12 +392,27 @@
         </div>
       </aside>
     </main>
+
+    <!-- 协作 Graph 弹层 -->
+    <CollaborationGraph
+      v-if="showGraph && selectedTeamData"
+      :team-name="selectedTeam"
+      :members="selectedTeamData.members || []"
+      :messages="graphMessages"
+      @close="closeGraph"
+      @minimize="minimizeGraph"
+    />
   </div>
 </template>
 
 <script>
+import CollaborationGraph from './components/CollaborationGraph.vue'
+
 export default {
   name: 'App',
+  components: {
+    CollaborationGraph
+  },
   data() {
     return {
       teams: [],
@@ -407,7 +432,8 @@ export default {
       },
       expandedMessages: {},
       isRefreshing: false,
-      Math: Math // 用于模板中的计算
+      Math: Math, // 用于模板中的计算
+      showGraph: false
     }
   },
   computed: {
@@ -451,6 +477,14 @@ export default {
 
       // 按时间戳正序排序（旧的在前，新的在后）
       return allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    },
+    graphMessages() {
+      // 为 Graph 组件准备消息数据，添加 recipient 字段
+      return this.chatMessages.map(msg => ({
+        ...msg,
+        id: msg.inboxFile + '-' + msg.timestamp,
+        recipient: msg.to || ''
+      }))
     }
   },
   methods: {
@@ -514,6 +548,15 @@ export default {
             this.isRefreshing = false
           }, 300)
         })
+    },
+    openGraph() {
+      this.showGraph = true
+    },
+    closeGraph() {
+      this.showGraph = false
+    },
+    minimizeGraph() {
+      this.showGraph = false
     },
     selectTeam(name) {
       this.selectedTeam = name
@@ -1231,6 +1274,36 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.section-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-play-graph {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+.btn-play-graph:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.btn-play-graph .btn-icon {
+  font-size: 14px;
 }
 
 .task-status-indicators {
