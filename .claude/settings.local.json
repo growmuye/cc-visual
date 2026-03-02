@@ -14,7 +14,9 @@
       "Bash(git add:*)",
       "Bash(git fetch origin && git branch -a)",
       "Bash(git checkout -b dev-03 origin/dev-03)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(git commit:*)",
+      "Bash(lsof:*)"
     ]
   }
 }

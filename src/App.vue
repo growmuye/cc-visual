@@ -101,130 +101,6 @@
             </div>
           </div>
 
-          <!-- 团队成员 -->
-          <div class="members-section">
-            <div class="section-header" @click="toggleSection('members')">
-              <div class="section-title">
-                <span class="section-icon">👥</span>
-                <h3>团队成员</h3>
-                <span class="count-badge">{{ selectedTeamData.members?.length || 0 }}</span>
-              </div>
-              <button class="collapse-btn" :class="{ collapsed: collapsedSections.members }">
-                <span class="chevron"></span>
-              </button>
-            </div>
-            <transition name="expand">
-              <div v-show="!collapsedSections.members" class="members-list">
-                <div
-                  v-for="member in selectedTeamData.members"
-                  :key="member.agentId"
-                  class="member-item"
-                  :style="{ '--member-color': member.color }"
-                >
-                  <div class="member-left">
-                    <div class="member-avatar" :style="{ backgroundColor: member.color }">
-                      {{ getInitials(member.name) }}
-                    </div>
-                    <div class="member-info">
-                      <div class="member-info-top">
-                        <span class="member-name" :style="{ color: member.color }">{{ member.name }}</span>
-                        <span class="member-type">{{ member.agentType }}</span>
-                      </div>
-                      <div class="member-info-bottom">
-                        <span class="model-badge" :style="{ borderColor: member.color + '40', color: member.color }">{{ member.model }}</span>
-                        <span v-if="member.tmuxPaneId" class="pane-badge">Pane: {{ member.tmuxPaneId }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="member-status-wrapper" :class="{ active: member.isActive }">
-                    <div class="status-indicator">
-                      <span class="status-dot"></span>
-                      <span class="status-pulse"></span>
-                    </div>
-                    <span class="status-text">{{ member.isActive ? '工作中' : '空闲' }}</span>
-                  </div>
-                </div>
-              </div>
-            </transition>
-          </div>
-
-          <!-- 协作消息 -->
-          <div class="inboxes-section">
-            <div class="section-header" @click="toggleSection('inboxes')">
-              <div class="section-title">
-                <span class="section-icon">💬</span>
-                <h3>协作消息</h3>
-                <span class="count-badge" :class="{ 'has-items': totalInboxMessages > 0 }">{{ totalInboxMessages }}</span>
-              </div>
-              <div class="section-actions-group">
-                <button
-                  v-if="totalInboxMessages > 0"
-                  class="btn-play-graph"
-                  @click.stop="openGraph"
-                  title="播放协作图">
-                  <span class="btn-icon">📊</span>
-                  <span>协作图</span>
-                </button>
-                <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
-                  <span class="chevron"></span>
-                </button>
-              </div>
-            </div>
-            <transition name="expand">
-              <div v-show="!collapsedSections.inboxes" class="chat-window" ref="chatWindow">
-                <div v-if="chatMessages.length === 0" class="empty-state-lg">
-                  <span class="empty-state-icon">💭</span>
-                  <p>暂无协作消息</p>
-                  <span class="empty-state-hint">团队成员之间的消息将显示在这里</span>
-                </div>
-                <div v-else class="chat-messages">
-                  <div
-                    v-for="(msg, idx) in chatMessages"
-                    :key="idx"
-                    class="chat-message"
-                    :class="['chat-from-' + getMemberId(msg.from), { unread: !msg.read }]"
-                  >
-                    <div class="chat-avatar" :style="{ backgroundColor: msg.color }">
-                      {{ getInitials(msg.from) }}
-                    </div>
-                    <div class="chat-bubble">
-                      <div class="chat-header-row">
-                        <div class="chat-meta-left">
-                          <span class="chat-sender" :style="{ color: msg.color }">{{ msg.from }}</span>
-                          <span v-if="msg.to" class="chat-to">
-                            <span class="to-arrow">→</span>
-                            <span class="recipient-name" :style="{ color: getMemberColor(msg.to) }">{{ msg.to }}</span>
-                          </span>
-                          <span v-if="msg.toolName" class="tool-badge" :style="{ borderColor: msg.color + '40' }">
-                            <span class="tool-icon">🔧</span>
-                            {{ msg.toolName }}
-                          </span>
-                        </div>
-                        <div class="chat-meta-right">
-                          <span class="chat-time">{{ formatTime(msg.timestamp) }}</span>
-                          <button
-                            v-if="msg.text && msg.text.length > 100"
-                            class="collapse-msg-btn"
-                            @click="toggleMessageExpand(idx)"
-                          >
-                            {{ expandedMessages[idx] ? '收起' : '展开' }}
-                          </button>
-                        </div>
-                      </div>
-                      <div class="chat-text" :class="{ collapsed: !expandedMessages[idx] && msg.text && msg.text.length > 100 }">
-                        {{ formatChatMessage(msg) }}
-                      </div>
-                      <div v-if="msg.summary" class="chat-summary">
-                        <span class="summary-icon">📌</span>
-                        {{ msg.summary }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </transition>
-          </div>
-
           <!-- 团队任务 -->
           <div class="tasks-section">
             <div class="section-header" @click="toggleSection('tasks')">
@@ -283,6 +159,129 @@
                 <div v-if="selectedTeamTasks.length === 0" class="empty-list">
                   <span class="empty-icon">📝</span>
                   <p>暂无相关任务</p>
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- 团队成员 -->
+          <div class="members-section">
+            <div class="section-header" @click="toggleSection('members')">
+              <div class="section-title">
+                <span class="section-icon">👥</span>
+                <h3>团队成员</h3>
+                <span class="count-badge">{{ selectedTeamData.members?.length || 0 }}</span>
+              </div>
+              <button class="collapse-btn" :class="{ collapsed: collapsedSections.members }">
+                <span class="chevron"></span>
+              </button>
+            </div>
+            <transition name="expand">
+              <div v-show="!collapsedSections.members" class="members-list">
+                <div
+                  v-for="member in selectedTeamData.members"
+                  :key="member.agentId"
+                  class="member-item"
+                  :style="{ '--member-color': member.color }"
+                >
+                  <div class="member-left">
+                    <div class="member-avatar" :style="{ backgroundColor: member.color }">
+                      {{ getInitials(member.name) }}
+                    </div>
+                    <div class="member-info">
+                      <div class="member-info-top">
+                        <span class="member-name" :style="{ color: member.color }">{{ member.name }}</span>
+                        <span class="member-type">{{ member.agentType }}</span>
+                      </div>
+                      <div class="member-info-bottom">
+                        <span class="model-badge" :style="{ borderColor: member.color + '40', color: member.color }">{{ member.model }}</span>
+                        <span v-if="member.tmuxPaneId" class="pane-badge">Pane: {{ member.tmuxPaneId }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="member-status-wrapper" :class="{ active: member.isActive }">
+                    <div class="status-indicator">
+                      <span class="status-dot"></span>
+                      <span class="status-pulse"></span>
+                    </div>
+                    <span class="status-text">{{ member.isActive ? '工作中' : '空闲' }}</span>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- 协作消息 -->
+          <div class="inboxes-section">
+            <div class="section-header" @click="toggleSection('inboxes')">
+              <div class="section-title">
+                <span class="section-icon">💬</span>
+                <h3>协作消息</h3>
+                <span class="count-badge" :class="{ 'has-items': totalInboxMessages > 0 }">{{ totalInboxMessages }}</span>
+              </div>
+              <div class="section-actions-group">
+                <button
+                  class="btn-play-graph disabled"
+                  disabled
+                  title="协作图（暂未启用）">
+                  <span class="btn-icon">📊</span>
+                  <span>协作图</span>
+                </button>
+                <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
+                  <span class="chevron"></span>
+                </button>
+              </div>
+            </div>
+            <transition name="expand">
+              <div v-show="!collapsedSections.inboxes" class="chat-window" ref="chatWindow">
+                <div v-if="chatMessages.length === 0" class="empty-state-lg">
+                  <span class="empty-state-icon">💭</span>
+                  <p>暂无协作消息</p>
+                  <span class="empty-state-hint">团队成员之间的消息将显示在这里</span>
+                </div>
+                <div v-else class="chat-messages">
+                  <div
+                    v-for="(msg, idx) in chatMessages"
+                    :key="idx"
+                    class="chat-message"
+                    :class="['chat-from-' + getMemberId(msg.from), { unread: !msg.read }]"
+                  >
+                    <div class="chat-avatar" :style="{ backgroundColor: msg.color }">
+                      {{ getInitials(msg.from) }}
+                    </div>
+                    <div class="chat-bubble">
+                      <div class="chat-header-row">
+                        <div class="chat-meta-left">
+                          <span class="chat-sender" :style="{ color: msg.color }">{{ msg.from }}</span>
+                          <span v-if="msg.to" class="chat-to">
+                            <span class="to-arrow">→</span>
+                            <span class="recipient-name" :style="{ color: getMemberColor(msg.to) }">{{ msg.to }}</span>
+                          </span>
+                          <span v-if="msg.toolName" class="tool-badge" :style="{ borderColor: msg.color + '40' }">
+                            <span class="tool-icon">🔧</span>
+                            {{ msg.toolName }}
+                          </span>
+                        </div>
+                        <div class="chat-meta-right">
+                          <span class="chat-time">{{ formatTime(msg.timestamp) }}</span>
+                          <button
+                            v-if="msg.text && msg.text.length > 100"
+                            class="collapse-msg-btn"
+                            @click="toggleMessageExpand(idx)"
+                          >
+                            {{ expandedMessages[idx] ? '收起' : '展开' }}
+                          </button>
+                        </div>
+                      </div>
+                      <div class="chat-text" :class="{ collapsed: !expandedMessages[idx] && msg.text && msg.text.length > 100 }">
+                        {{ formatChatMessage(msg) }}
+                      </div>
+                      <div v-if="msg.summary" class="chat-summary">
+                        <span class="summary-icon">📌</span>
+                        {{ msg.summary }}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </transition>
@@ -446,8 +445,8 @@ export default {
       isEditingPath: false,
       editPath: '',
       collapsedSections: {
-        members: false,
-        tasks: false,
+        members: true,
+        tasks: true,
         inboxes: false
       },
       expandedMessages: {},
@@ -1355,6 +1354,18 @@ export default {
 .btn-play-graph:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.btn-play-graph.disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.btn-play-graph.disabled:hover {
+  transform: none;
+  box-shadow: 0 1px 3px rgba(107, 114, 128, 0.3);
 }
 
 .btn-play-graph .btn-icon {
