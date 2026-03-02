@@ -118,17 +118,54 @@ function getTasks() {
     return tasks;
   }
 
-  const taskDirs = fs.readdirSync(TASKS_PATH);
-  for (const taskDir of taskDirs) {
-    const taskPath = path.join(TASKS_PATH, taskDir);
-    const stat = fs.statSync(taskPath);
-    if (stat.isFile() && taskPath.endsWith('.json')) {
+  const teamDirs = fs.readdirSync(TASKS_PATH);
+  for (const teamDir of teamDirs) {
+    const teamTaskPath = path.join(TASKS_PATH, teamDir);
+    const stat = fs.statSync(teamTaskPath);
+    // 只处理目录
+    if (!stat.isDirectory()) {
+      continue;
+    }
+
+    // 读取该团队目录下的所有任务文件
+    const taskFiles = fs.readdirSync(teamTaskPath);
+    for (const taskFile of taskFiles) {
+      if (taskFile.endsWith('.json')) {
+        try {
+          const content = fs.readFileSync(path.join(teamTaskPath, taskFile), 'utf-8');
+          const task = JSON.parse(content);
+          // 添加团队名称到任务数据中
+          task.teamName = teamDir;
+          tasks.push(task);
+        } catch (e) {
+          console.error(`读取任务 ${taskFile} 失败:`, e);
+        }
+      }
+    }
+  }
+  return tasks;
+}
+
+// 读取指定团队的任务数据
+function getTasksByTeam(teamName) {
+  const tasks = [];
+  const teamTaskPath = path.join(TASKS_PATH, teamName);
+
+  if (!fs.existsSync(teamTaskPath)) {
+    return tasks;
+  }
+
+  const taskFiles = fs.readdirSync(teamTaskPath);
+  for (const taskFile of taskFiles) {
+    if (taskFile.endsWith('.json')) {
       try {
-        const content = fs.readFileSync(taskPath, 'utf-8');
+        const content = fs.readFileSync(path.join(teamTaskPath, taskFile), 'utf-8');
         const task = JSON.parse(content);
+        // 添加团队名称到任务数据中
+        task.teamName = teamName;
         tasks.push(task);
       } catch (e) {
-        console.error(`读取任务 ${taskDir} 失败:`, e);
+        console.error(`读取任务 ${taskFile} 失败:`, e);
       }
     }
   }
@@ -319,6 +356,12 @@ app.get('/api/inboxes/:teamName', (req, res) => {
 
 app.get('/api/tasks', (req, res) => {
   res.json(getTasks());
+});
+
+// 获取指定团队的任务
+app.get('/api/tasks/:teamName', (req, res) => {
+  const teamName = req.params.teamName;
+  res.json(getTasksByTeam(teamName));
 });
 
 app.get('/api/config', (req, res) => {

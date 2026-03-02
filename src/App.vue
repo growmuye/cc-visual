@@ -415,7 +415,7 @@ export default {
       return this.teams.find(t => t.name === this.selectedTeam)
     },
     selectedTeamTasks() {
-      return this.tasks.filter(t => t.owner && this.selectedTeamData?.members?.some(m => m.name === t.owner))
+      return this.tasks.filter(t => t.teamName === this.selectedTeam)
     },
     totalMembers() {
       return this.teams.reduce((sum, t) => sum + (t.members?.length || 0), 0)
@@ -470,6 +470,17 @@ export default {
         console.error('获取任务数据失败:', error)
       }
     },
+    async fetchTasksForTeam(teamName) {
+      try {
+        const response = await fetch(`/api/tasks/${teamName}`)
+        const teamTasks = await response.json()
+        // 更新 tasks 数组中属于该团队的任务
+        const otherTeamTasks = this.tasks.filter(t => t.teamName !== teamName)
+        this.tasks = [...otherTeamTasks, ...teamTasks]
+      } catch (error) {
+        console.error('获取团队任务数据失败:', error)
+      }
+    },
     async fetchConfig() {
       try {
         const response = await fetch('/api/config')
@@ -507,6 +518,7 @@ export default {
     selectTeam(name) {
       this.selectedTeam = name
       this.fetchInboxes()
+      this.fetchTasksForTeam(name)
     },
     toggleSection(section) {
       this.collapsedSections[section] = !this.collapsedSections[section]
@@ -527,10 +539,7 @@ export default {
       return 'active'
     },
     getTeamTaskCount(teamName) {
-      const team = this.teams.find(t => t.name === teamName)
-      if (!team) return 0
-      const memberNames = team.members?.map(m => m.name) || []
-      return this.tasks.filter(t => memberNames.includes(t.owner)).length
+      return this.tasks.filter(t => t.teamName === teamName).length
     },
     truncate(str, len) {
       if (!str) return ''
@@ -635,6 +644,7 @@ export default {
   watch: {
     selectedTeam() {
       this.fetchInboxes()
+      this.fetchTasksForTeam(this.selectedTeam)
     },
     chatMessages() {
       // 滚动到底部（因为消息按正序排列，新消息在后面）
