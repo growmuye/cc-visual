@@ -162,7 +162,7 @@
                   class="btn-play-graph"
                   @click.stop="openGraph"
                   title="播放协作图">
-                  <span class="btn-icon">▶️</span>
+                  <span class="btn-icon">📊</span>
                   <span>协作图</span>
                 </button>
                 <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
@@ -392,27 +392,12 @@
         </div>
       </aside>
     </main>
-
-    <!-- 协作 Graph 弹层 -->
-    <CollaborationGraph
-      v-if="showGraph && selectedTeamData"
-      :team-name="selectedTeam"
-      :members="selectedTeamData.members || []"
-      :messages="graphMessages"
-      @close="closeGraph"
-      @minimize="minimizeGraph"
-    />
   </div>
 </template>
 
 <script>
-import CollaborationGraph from './components/CollaborationGraph.vue'
-
 export default {
   name: 'App',
-  components: {
-    CollaborationGraph
-  },
   data() {
     return {
       teams: [],
@@ -432,8 +417,7 @@ export default {
       },
       expandedMessages: {},
       isRefreshing: false,
-      Math: Math, // 用于模板中的计算
-      showGraph: false
+      Math: Math // 用于模板中的计算
     }
   },
   computed: {
@@ -477,14 +461,6 @@ export default {
 
       // 按时间戳正序排序（旧的在前，新的在后）
       return allMessages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-    },
-    graphMessages() {
-      // 为 Graph 组件准备消息数据，添加 recipient 字段
-      return this.chatMessages.map(msg => ({
-        ...msg,
-        id: msg.inboxFile + '-' + msg.timestamp,
-        recipient: msg.to || ''
-      }))
     }
   },
   methods: {
@@ -550,13 +526,7 @@ export default {
         })
     },
     openGraph() {
-      this.showGraph = true
-    },
-    closeGraph() {
-      this.showGraph = false
-    },
-    minimizeGraph() {
-      this.showGraph = false
+      this.$router.push({ path: '/graph', query: { team: this.selectedTeam } })
     },
     selectTeam(name) {
       this.selectedTeam = name
