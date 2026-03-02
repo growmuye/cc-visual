@@ -227,6 +227,13 @@
                   <span class="btn-icon">📊</span>
                   <span>协作图</span>
                 </button>
+                <button
+                  class="btn-expand-chat"
+                  @click="openChatLarge"
+                  title="放大查看协作消息">
+                  <span class="btn-icon">⤢</span>
+                  <span>放大</span>
+                </button>
                 <button class="collapse-btn" :class="{ collapsed: collapsedSections.inboxes }">
                   <span class="chevron"></span>
                 </button>
@@ -601,7 +608,7 @@ export default {
     },
     refreshData() {
       this.isRefreshing = true
-      Promise.all([this.fetchTeams(), this.fetchTasks(), this.fetchConfig(), this.fetchSessions(), this.fetchInboxes()])
+      Promise.all([this.fetchTeams(), this.fetchTasks(), this.fetchConfig(), this.fetchSessions(), this.fetchInboxes(), this.fetchClaudePath()])
         .finally(() => {
           setTimeout(() => {
             this.isRefreshing = false
@@ -610,6 +617,9 @@ export default {
     },
     openGraph() {
       this.$router.push({ path: '/graph', query: { team: this.selectedTeam } })
+    },
+    openChatLarge() {
+      this.$router.push({ path: '/chat-large', query: { team: this.selectedTeam } })
     },
     selectTeam(name) {
       this.selectedTeam = name
@@ -1369,6 +1379,30 @@ export default {
 }
 
 .btn-play-graph .btn-icon {
+  font-size: 14px;
+}
+
+.btn-expand-chat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+}
+
+.btn-expand-chat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
+.btn-expand-chat .btn-icon {
   font-size: 14px;
 }
 

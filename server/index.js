@@ -6,6 +6,9 @@ const chokidar = require('chokidar');
 const app = express();
 const PORT = 3000;
 
+// 解析 JSON 请求体
+app.use(express.json());
+
 // .claude 目录路径 - 默认为用户主目录下的 .claude
 let CLAUDE_PATH = path.join(process.env.HOME || process.env.USERPROFILE, '.claude');
 let TEAMS_PATH = path.join(CLAUDE_PATH, 'teams');
@@ -374,8 +377,17 @@ app.get('/api/claude-path', (req, res) => {
 
 // 更新 Claude 路径
 app.post('/api/claude-path', (req, res) => {
-  const { path: newPath } = req.body;
-  if (newPath && fs.existsSync(newPath)) {
+  try {
+    const { path: newPath } = req.body;
+
+    if (!newPath) {
+      return res.status(400).json({ error: '路径不能为空' });
+    }
+
+    if (!fs.existsSync(newPath)) {
+      return res.status(400).json({ error: '路径不存在' });
+    }
+
     // 更新路径
     const newTeamsPath = path.join(newPath, 'teams');
     const newTasksPath = path.join(newPath, 'tasks');
@@ -406,8 +418,9 @@ app.post('/api/claude-path', (req, res) => {
 
     console.log(`📁 数据源已更新：${newPath}`);
     res.json({ success: true, path: newPath });
-  } else {
-    res.status(400).json({ error: '路径不存在' });
+  } catch (error) {
+    console.error('更新数据源路径失败:', error);
+    res.status(500).json({ error: '服务器内部错误：' + error.message });
   }
 });
 

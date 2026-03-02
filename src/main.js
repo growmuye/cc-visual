@@ -2,10 +2,12 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import GraphView from './views/GraphView.vue'
+import ChatLargeView from './views/ChatLargeView.vue'
 
 const routes = [
   { path: '/', component: App },
-  { path: '/graph', component: GraphView }
+  { path: '/graph', component: GraphView },
+  { path: '/chat-large', component: ChatLargeView }
 ]
 
 const router = createRouter({
