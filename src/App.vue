@@ -228,9 +228,9 @@
                   <span>协作图</span>
                 </button>
                 <button
-                  class="btn-expand-chat"
-                  @click="openChatLarge"
-                  title="放大查看协作消息">
+                  class="btn-expand-chat disabled"
+                  disabled
+                  title="放大查看协作消息（暂未启用）">
                   <span class="btn-icon">⤢</span>
                   <span>放大</span>
                 </button>
