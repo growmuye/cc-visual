@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sleep 30 && cat ~/.claude/tasks/language-debate/*.json 2>/dev/null | head -100)",
+      "Bash(sleep 20 && cat ~/.claude/teams/language-debate/inboxes/team-lead.json | jq '.[-10:]' 2>/dev/null || tail -50 ~/.claude/teams/language-debate/inboxes/team-lead.json)",
+      "Bash(sleep 30 && tail -100 ~/.claude/teams/language-debate/inboxes/team-lead.json | jq -r '.[] | select\\(.timestamp > \"2026-03-02T07:51:30Z\"\\) | \"[\\\\\\(.from\\)] \\\\\\(.summary // \"no summary\"\\)\"' 2>/dev/null || echo \"Checking messages...\")",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(do echo:*)",
+      "Bash(node:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
