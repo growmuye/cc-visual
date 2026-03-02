@@ -342,6 +342,39 @@
               ></div>
             </div>
           </div>
+          <!-- 数据源路径 -->
+          <div class="data-source-section">
+            <div class="data-source-label">
+              <span class="source-icon">📁</span>
+              <span>数据源路径</span>
+            </div>
+            <div class="data-source-input-wrapper" :class="{ editing: isEditingPath }">
+              <input
+                v-if="isEditingPath"
+                ref="pathInput"
+                v-model="editPath"
+                type="text"
+                class="data-source-input"
+                placeholder="输入 .claude 目录路径"
+                @keyup.enter="savePath"
+                @keyup.escape="cancelEdit"
+              />
+              <div
+                v-else
+                class="data-source-display"
+                @click="startEdit"
+                title="点击编辑路径"
+              >
+                <span class="data-source-path">{{ claudePath || '未设置' }}</span>
+                <span class="edit-icon">✏️</span>
+              </div>
+              <div v-if="isEditingPath" class="data-source-actions">
+                <button class="btn-cancel-small" @click="cancelEdit">取消</button>
+                <button class="btn-save-small" @click="savePath">保存</button>
+              </div>
+            </div>
+            <p class="data-source-hint">点击路径可修改数据源目录</p>
+          </div>
         </div>
 
         <div class="panel-section">
@@ -409,7 +442,9 @@ export default {
       selectedTeam: null,
       autoRefresh: false,
       countdown: 5,
-      claudePath: '/Users/gmy/.claude',
+      claudePath: '',
+      isEditingPath: false,
+      editPath: '',
       collapsedSections: {
         members: false,
         tasks: false,
@@ -497,6 +532,55 @@ export default {
         this.config = await response.json()
       } catch (error) {
         console.error('获取配置失败:', error)
+      }
+    },
+    async fetchClaudePath() {
+      try {
+        const response = await fetch('/api/claude-path')
+        const data = await response.json()
+        this.claudePath = data.path
+      } catch (error) {
+        console.error('获取数据源路径失败:', error)
+      }
+    },
+    onPathSaved(newPath) {
+      this.claudePath = newPath
+      this.refreshData()
+    },
+    startEdit() {
+      this.isEditingPath = true
+      this.editPath = this.claudePath
+      this.$nextTick(() => {
+        this.$refs.pathInput?.focus()
+      })
+    },
+    cancelEdit() {
+      this.isEditingPath = false
+      this.editPath = ''
+    },
+    async savePath() {
+      const path = this.editPath.trim()
+      if (!path) {
+        alert('请输入路径')
+        return
+      }
+      try {
+        const response = await fetch('/api/claude-path', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ path })
+        })
+        const result = await response.json()
+        if (response.ok && result.success) {
+          this.claudePath = path
+          this.isEditingPath = false
+          this.editPath = ''
+          this.refreshData()
+        } else {
+          alert(result.error || '保存失败')
+        }
+      } catch (error) {
+        alert('保存失败：' + error.message)
       }
     },
     async fetchSessions() {
@@ -642,6 +726,7 @@ export default {
     }
   },
   mounted() {
+    this.fetchClaudePath()
     this.refreshData()
 
     setInterval(() => {
@@ -2076,6 +2161,121 @@ export default {
 
 .activity-fill.medium {
   background: linear-gradient(90deg, var(--warning), var(--info));
+}
+
+/* 数据源路径 */
+.data-source-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.data-source-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.source-icon {
+  font-size: 1rem;
+}
+
+.data-source-input-wrapper {
+  position: relative;
+}
+
+.data-source-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.data-source-display:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+}
+
+.data-source-path {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.edit-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.data-source-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.75rem;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--text-primary);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.data-source-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-cancel-small,
+.btn-save-small {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-cancel-small {
+  background: white;
+  border-color: var(--border-medium);
+  color: var(--text-secondary);
+}
+
+.btn-cancel-small:hover {
+  background: var(--bg-tertiary);
+}
+
+.btn-save-small {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-save-small:hover {
+  background: var(--primary-dark);
+}
+
+.data-source-hint {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* 配置信息 */

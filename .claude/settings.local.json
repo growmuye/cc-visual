@@ -11,7 +11,10 @@
       "Bash(do echo:*)",
       "Bash(node:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git fetch origin && git branch -a)",
+      "Bash(git checkout -b dev-03 origin/dev-03)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

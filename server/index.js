@@ -6,11 +6,11 @@ const chokidar = require('chokidar');
 const app = express();
 const PORT = 3000;
 
-// .claude 目录路径
-const CLAUDE_PATH = process.env.CLAUDE_PATH || '/Users/gmy/.claude';
-const TEAMS_PATH = path.join(CLAUDE_PATH, 'teams');
-const TASKS_PATH = path.join(CLAUDE_PATH, 'tasks');
-const CONFIG_PATH = path.join(CLAUDE_PATH, 'config.json');
+// .claude 目录路径 - 默认为用户主目录下的 .claude
+let CLAUDE_PATH = path.join(process.env.HOME || process.env.USERPROFILE, '.claude');
+let TEAMS_PATH = path.join(CLAUDE_PATH, 'teams');
+let TASKS_PATH = path.join(CLAUDE_PATH, 'tasks');
+let CONFIG_PATH = path.join(CLAUDE_PATH, 'config.json');
 
 // 读取团队数据
 function getTeams() {
@@ -370,6 +370,45 @@ app.get('/api/config', (req, res) => {
 
 app.get('/api/claude-path', (req, res) => {
   res.json({ path: CLAUDE_PATH });
+});
+
+// 更新 Claude 路径
+app.post('/api/claude-path', (req, res) => {
+  const { path: newPath } = req.body;
+  if (newPath && fs.existsSync(newPath)) {
+    // 更新路径
+    const newTeamsPath = path.join(newPath, 'teams');
+    const newTasksPath = path.join(newPath, 'tasks');
+
+    // 验证新路径是否有效
+    if (!fs.existsSync(newTeamsPath) && !fs.existsSync(newTasksPath)) {
+      // 如果新路径下没有 teams 或 tasks 目录，警告但仍允许设置
+      console.log(`警告：新路径 ${newPath} 下没有找到 teams 或 tasks 目录`);
+    }
+
+    // 更新全局变量
+    CLAUDE_PATH = newPath;
+    TEAMS_PATH = newTeamsPath;
+    TASKS_PATH = newTasksPath;
+    CONFIG_PATH = path.join(newPath, 'config.json');
+
+    // 重新设置文件监听
+    watcher.close();
+    const newWatcher = chokidar.watch([newTeamsPath, newTasksPath], {
+      persistent: true,
+      ignoreInitial: true,
+      depth: 2
+    });
+    newWatcher.on('all', (event, path) => {
+      console.log(`📡 文件变化：${event} - ${path}`);
+    });
+    global.watcher = newWatcher;
+
+    console.log(`📁 数据源已更新：${newPath}`);
+    res.json({ success: true, path: newPath });
+  } else {
+    res.status(400).json({ error: '路径不存在' });
+  }
 });
 
 // 静态文件服务（生产环境）
