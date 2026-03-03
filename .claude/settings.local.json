@@ -12,11 +12,14 @@
       "Bash(node:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git fetch origin && git branch -a)",
-      "Bash(git checkout -b dev-03 origin/dev-03)",
-      "Bash(npm uninstall:*)",
+      "Bash(git config:*)",
       "Bash(git commit:*)",
-      "Bash(lsof:*)"
+      "Bash(git checkout:*)",
+      "Bash(lsof:*)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(git:*)"
     ]
   }
 }
