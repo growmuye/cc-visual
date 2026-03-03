@@ -28,6 +28,13 @@
     <main class="main-content">
       <!-- 左侧：团队列表 -->
       <aside class="sidebar">
+        <!-- Teams 架构导航 -->
+        <div class="architecture-nav">
+          <div class="nav-item" @click="showArchitectureModal = true">
+            <span class="nav-icon">🏗️</span>
+            <span class="nav-label">Teams 架构</span>
+          </div>
+        </div>
         <div class="sidebar-header">
           <h2>
             <span class="header-icon">💼</span>
@@ -431,6 +438,53 @@
         </div>
       </aside>
     </main>
+
+    <!-- Teams 架构模态框 -->
+    <transition name="modal-fade">
+      <div v-if="showArchitectureModal" class="architecture-modal-overlay" @click.self="closeArchitectureModal">
+        <div class="architecture-modal">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <span class="modal-icon">🏗️</span>
+              Teams 架构
+            </h3>
+            <button class="modal-close" @click="closeArchitectureModal">
+              <span>✕</span>
+            </button>
+          </div>
+          <div class="modal-tabs">
+            <button
+              :class="['tab-btn', { active: activeArchitectureTab === 'team-lead' }]"
+              @click="activeArchitectureTab = 'team-lead'"
+            >
+              <span class="tab-icon">🎯</span>
+              <span>Team Lead 视角</span>
+            </button>
+            <button
+              :class="['tab-btn', { active: activeArchitectureTab === 'teammate' }]"
+              @click="activeArchitectureTab = 'teammate'"
+            >
+              <span class="tab-icon">👤</span>
+              <span>Teammate 视角</span>
+            </button>
+          </div>
+          <div class="modal-content">
+            <iframe
+              v-if="activeArchitectureTab === 'team-lead'"
+              :src="teamLeadUrl"
+              class="architecture-iframe"
+              frameborder="0"
+            ></iframe>
+            <iframe
+              v-if="activeArchitectureTab === 'teammate'"
+              :src="teammateUrl"
+              class="architecture-iframe"
+              frameborder="0"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -458,10 +512,19 @@ export default {
       },
       expandedMessages: {},
       isRefreshing: false,
-      Math: Math // 用于模板中的计算
+      Math: Math, // 用于模板中的计算
+      // Teams 架构模态框
+      showArchitectureModal: false,
+      activeArchitectureTab: 'team-lead'
     }
   },
   computed: {
+    teamLeadUrl() {
+      return '/team-lead-v2.html'
+    },
+    teammateUrl() {
+      return '/teammate.html'
+    },
     selectedTeamData() {
       return this.teams.find(t => t.name === this.selectedTeam)
     },
@@ -732,6 +795,12 @@ export default {
         'completed': '已完成'
       }
       return statusMap[status] || status
+    },
+    openArchitectureModal() {
+      this.showArchitectureModal = true
+    },
+    closeArchitectureModal() {
+      this.showArchitectureModal = false
     }
   },
   mounted() {
@@ -2411,5 +2480,211 @@ export default {
   border-radius: 50%;
   background: var(--success);
   box-shadow: 0 0 6px var(--success);
+}
+
+/* ==================== Teams 架构导航 ==================== */
+.architecture-nav {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.architecture-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(34, 211, 238, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.architecture-nav .nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, #6366f1, #22d3ee);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.architecture-nav .nav-item:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(34, 211, 238, 0.15));
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.architecture-nav .nav-item:hover::before {
+  opacity: 1;
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+.nav-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #6366f1, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==================== 架构模态框 ==================== */
+.architecture-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+}
+
+.architecture-modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 1400px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-medium);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(34, 211, 238, 0.1));
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5));
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.modal-tabs {
+  display: flex;
+  padding: 0.75rem 1.5rem;
+  gap: 0.5rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(34, 211, 238, 0.15));
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.tab-icon {
+  font-size: 1.1rem;
+}
+
+.modal-content {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-dark);
+}
+
+.architecture-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* 模态框动画 */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active .architecture-modal,
+.modal-fade-leave-active .architecture-modal {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-fade-enter-from .architecture-modal,
+.modal-fade-leave-to .architecture-modal {
+  transform: scale(0.95) translateY(-20px);
+  opacity: 0;
 }
 </style>
